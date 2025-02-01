@@ -7,8 +7,7 @@ use opentelemetry_sdk::trace::TracerProvider;
 
 use crate::common::resource;
 
-pub fn init_tracer_provider(otlp_collector_endpoint: &str) -> Result<TracerProvider, TraceError>
-{
+pub fn init_tracer_provider(otlp_collector_endpoint: String) -> Result<TracerProvider, TraceError> {
     global::set_text_map_propagator(TraceContextPropagator::new());
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_tonic()
@@ -18,6 +17,9 @@ pub fn init_tracer_provider(otlp_collector_endpoint: &str) -> Result<TracerProvi
     Ok(TracerProvider::builder()
         .with_resource(resource())
         .with_batch_exporter(exporter, runtime::Tokio)
-        .with_batch_exporter(opentelemetry_stdout::SpanExporter::default(), runtime::Tokio)
+        .with_batch_exporter(
+            opentelemetry_stdout::SpanExporter::default(),
+            runtime::Tokio,
+        )
         .build())
 }

@@ -35,13 +35,22 @@ pub struct ObservabilityGuard {
 }
 
 impl ObservabilityGuard {
-    pub fn new(log_level: tracing_core::Level, tracer_name: &str,otlp_collector_url: &str) -> Self {
-        let tracer_provider = init_tracer_provider(otlp_collector_url).expect("Error while constructing the tracer");
+    pub fn new(
+        log_level: tracing_core::Level,
+        tracer_name: &str,
+        otlp_collector_url: String,
+    ) -> Self {
+        let tracer_provider = init_tracer_provider(otlp_collector_url.clone())
+            .expect("Error while constructing the tracer");
         global::set_tracer_provider(tracer_provider.clone());
         let tracer = tracer_provider.tracer(tracer_name.to_string());
-        let logger_provider = init_logs(otlp_collector_url).expect("Error while constructing the logger");
-        let layer = OpenTelemetryTracingBridge::new(&logger_provider).with_filter(tracing_subscriber::filter::filter_fn(|metadata| metadata.target().starts_with("log")));
-        let metric_provider = init_meter_provider().expect("Error while constructing metric provider");
+        let logger_provider =
+            init_logs(otlp_collector_url).expect("Error while constructing the logger");
+        let layer = OpenTelemetryTracingBridge::new(&logger_provider).with_filter(
+            tracing_subscriber::filter::filter_fn(|metadata| metadata.target().starts_with("log")),
+        );
+        let metric_provider =
+            init_meter_provider().expect("Error while constructing metric provider");
         global::set_meter_provider(metric_provider.clone());
         tracing_subscriber::registry()
             .with(tracing_subscriber::filter::LevelFilter::from_level(
@@ -49,7 +58,11 @@ impl ObservabilityGuard {
             ))
             // .with(tracing_subscriber::fmt::layer())
             .with(MetricsLayer::new(metric_provider.clone()))
-            .with(OpenTelemetryLayer::new(tracer).with_filter(tracing_subscriber::filter::filter_fn(|metadata| !metadata.target().starts_with("log"))))
+            .with(OpenTelemetryLayer::new(tracer).with_filter(
+                tracing_subscriber::filter::filter_fn(|metadata| {
+                    !metadata.target().starts_with("log")
+                }),
+            ))
             .with(layer)
             .init();
         ObservabilityGuard {
