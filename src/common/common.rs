@@ -1,21 +1,21 @@
-use opentelemetry::{global, KeyValue};
+use crate::logging::init_logs;
+use crate::metric::init_meter_provider;
+use crate::tracing::init_tracer_provider;
 use opentelemetry::trace::TracerProvider as _;
+use opentelemetry::{global, KeyValue};
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
 use opentelemetry_sdk::logs::LoggerProvider;
 use opentelemetry_sdk::metrics::SdkMeterProvider;
-use opentelemetry_sdk::Resource;
 use opentelemetry_sdk::trace::TracerProvider;
+use opentelemetry_sdk::Resource;
 use opentelemetry_semantic_conventions::{
     attribute::{DEPLOYMENT_ENVIRONMENT_NAME, SERVICE_NAME, SERVICE_VERSION},
     SCHEMA_URL,
 };
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
-use tracing_subscriber::Layer;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use crate::logging::init_logs;
-use crate::metric::init_meter_provider;
-use crate::tracing::init_tracer_provider;
+use tracing_subscriber::Layer;
 
 pub fn resource() -> Resource {
     Resource::from_schema_url(
