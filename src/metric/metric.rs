@@ -1,5 +1,7 @@
 use opentelemetry::global;
-use opentelemetry_sdk::metrics::{MeterProviderBuilder, MetricError, PeriodicReader, SdkMeterProvider};
+use opentelemetry_sdk::metrics::{
+    MeterProviderBuilder, MetricError, PeriodicReader, SdkMeterProvider,
+};
 use opentelemetry_sdk::runtime;
 
 use crate::common::resource;
@@ -19,7 +21,7 @@ pub fn init_meter_provider() -> Result<SdkMeterProvider, MetricError> {
         opentelemetry_stdout::MetricExporter::default(),
         runtime::Tokio,
     )
-        .build();
+    .build();
 
     let meter_provider = MeterProviderBuilder::default()
         .with_resource(resource())
